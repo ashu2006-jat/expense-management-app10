@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --background: #0c0c0e;
+  --foreground: #f0f0f2;
+  --card: #141416;
+  --card-foreground: #f0f0f2;
+  --primary: #b8ff57;
+  --primary-foreground: #0c0c0e;
+  --secondary: #1e1e22;
+  --secondary-foreground: #a0a0a8;
+  --muted: #1a1a1e;
+  --muted-foreground: #6b6b75;
+  --accent: #b8ff57;
+  --accent-foreground: #0c0c0e;
+  --border: #2a2a30;
+  --ring: #b8ff57;
+  --radius: 4px;
+  --destructive: #ff5757;
+  --warning: #ffa657;
+  --info: #57b8ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
