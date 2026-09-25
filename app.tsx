@@ -99,6 +99,13 @@ interface AuthScreenProps {
   onLogin: (user: User) => void;
 }
 
+function isValidGmail(val: string): boolean {
+  // Must be exactly: localpart@gmail.com
+  // localpart: 6-30 chars, letters/numbers/dots, no leading/trailing/consecutive dots
+  const re = /^[a-zA-Z0-9]([a-zA-Z0-9.]{4,28}[a-zA-Z0-9])@gmail\.com$/;
+  return re.test(val.trim().toLowerCase());
+}
+
 function AuthScreen({ onLogin }: AuthScreenProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState("");
@@ -106,6 +113,7 @@ function AuthScreen({ onLogin }: AuthScreenProps) {
   const [password, setPassword] = useState("");
   const [currency, setCurrency] = useState("$");
   const [error, setError] = useState("");
+  const [emailTouched, setEmailTouched] = useState(false);
 
   const inputStyle: React.CSSProperties = {
     background: "var(--secondary)",
@@ -141,6 +149,10 @@ function AuthScreen({ onLogin }: AuthScreenProps) {
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail) {
       setError("Please enter your email address.");
+      return;
+    }
+    if (!isValidGmail(cleanEmail)) {
+      setError("Only Gmail addresses are accepted (e.g. yourname@gmail.com).");
       return;
     }
     if (!password || password.length < 4) {
@@ -298,14 +310,53 @@ function AuthScreen({ onLogin }: AuthScreenProps) {
               </div>
             )}
 
-            <input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              style={inputStyle}
-              required
-            />
+            {/* Gmail email field with live validation badge */}
+            <div style={{ position: "relative", marginBottom: "14px" }}>
+              <input
+                type="email"
+                placeholder="yourname@gmail.com"
+                value={email}
+                onChange={e => { setEmail(e.target.value); setEmailTouched(true); }}
+                onBlur={() => setEmailTouched(true)}
+                style={{
+                  ...inputStyle,
+                  marginBottom: 0,
+                  paddingRight: "44px",
+                  borderColor: emailTouched
+                    ? isValidGmail(email)
+                      ? "#b8ff57"
+                      : email.trim().length > 0
+                        ? "#ff5757"
+                        : "var(--border)"
+                    : "var(--border)",
+                  transition: "border-color 0.2s",
+                }}
+                required
+              />
+              {emailTouched && email.trim().length > 0 && (
+                <span style={{
+                  position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)",
+                  fontSize: "16px", lineHeight: 1,
+                  color: isValidGmail(email) ? "#b8ff57" : "#ff5757",
+                  pointerEvents: "none",
+                  transition: "color 0.2s",
+                }}>
+                  {isValidGmail(email) ? "✓" : "✗"}
+                </span>
+              )}
+              {emailTouched && email.trim().length > 0 && !isValidGmail(email) && (
+                <p style={{ fontSize: "11px", color: "#ff5757", marginTop: "6px", paddingLeft: "2px" }}>
+                  {email.includes("@") && !email.toLowerCase().endsWith("@gmail.com")
+                    ? "Only @gmail.com addresses are allowed."
+                    : "Enter a valid Gmail address (e.g. yourname@gmail.com)."}
+                </p>
+              )}
+              {emailTouched && isValidGmail(email) && (
+                <p style={{ fontSize: "11px", color: "#b8ff57", marginTop: "6px", paddingLeft: "2px" }}>
+                  ✓ Valid Gmail address
+                </p>
+              )}
+            </div>
 
             <input
               type="password"
@@ -2363,10 +2414,9 @@ function AppShell() {
             background: "var(--background)", borderRadius: "44px",
             boxShadow: "0 0 0 1px #ffffff10, 0 40px 80px #00000080, inset 0 1px 0 #ffffff08",
           }}>
-          {/* status bar */}
-          <div className="shrink-0 flex justify-between items-center px-8 pt-3 pb-1"
+          {/* top bar */}
+          <div className="shrink-0 flex justify-end items-center px-8 pt-3 pb-1"
             style={{ fontSize: "12px", fontFamily: "var(--font-mono)", color: "var(--muted-foreground)" }}>
-            <span>9:41</span>
             <div className="flex gap-2 items-center">
               <button
                 onClick={resetToZero}
@@ -2381,7 +2431,6 @@ function AppShell() {
                 Account
               </button>
             </div>
-            <div className="flex gap-1.5 items-center"><span>●●●</span><span>100%</span></div>
           </div>
 
           <div className="flex-1 overflow-hidden">
@@ -2477,9 +2526,8 @@ function AppShell() {
       {/* ── mobile: fills viewport ── */}
       <div className="flex sm:hidden flex-col h-screen"
         style={{ background: "var(--background)", fontFamily: "var(--font-sans)", position: "relative" }}>
-        <div className="shrink-0 flex justify-between items-center px-6 pt-3 pb-1"
+        <div className="shrink-0 flex justify-end items-center px-6 pt-3 pb-1"
           style={{ fontSize: "12px", fontFamily: "var(--font-mono)", color: "var(--muted-foreground)" }}>
-          <span>9:41</span>
           <div className="flex gap-2 items-center">
             <button
               onClick={resetToZero}
@@ -2494,7 +2542,6 @@ function AppShell() {
               Account
             </button>
           </div>
-          <div className="flex gap-1.5 items-center"><span>●●●</span><span>100%</span></div>
         </div>
 
         <div className="flex-1 overflow-hidden">
